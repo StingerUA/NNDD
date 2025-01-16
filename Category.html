@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #ff6f61, #ff9a9e);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            align-self: flex-start;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filters select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .ads-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ad {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ad img {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .ad-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .ad-description {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .ad-location {
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">← Back</button>
+    <h1 id="categoryTitle">Category</h1>
+
+    <!-- Фильтры -->
+    <div class="filters">
+        <select id="locationFilter">
+            <option value="">All Locations</option>
+            <option value="New York">New York</option>
+            <option value="Los Angeles">Los Angeles</option>
+        </select>
+    </div>
+
+    <div class="ads-container" id="adsContainer"></div>
+
+    <script>
+        // Получаем выбранную категорию из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category');
+
+        // Устанавливаем заголовок категории
+        const categoryTitle = document.getElementById('categoryTitle');
+        categoryTitle.textContent = category;
+
+        // Загружаем объявления из localStorage
+        const ads = JSON.parse(localStorage.getItem('ads')) || [];
+
+        // Функция отображения объявлений
+        function displayAds(filteredAds) {
+            const adsContainer = document.getElementById('adsContainer');
+            adsContainer.innerHTML = ''; // Очистка контейнера
+
+            if (filteredAds.length > 0) {
+                filteredAds.forEach(ad => {
+                    const adElement = document.createElement('div');
+                    adElement.classList.add('ad');
+                    adElement.innerHTML = `
+                        ${ad.photo ? `<img src="${ad.photo}" alt="${ad.title}">` : ''}
+                        <div class="ad-title">${ad.title}</div>
+                        <div class="ad-description">${ad.description}</div>
+                        <div class="ad-location">Location: ${ad.location}</div>
+                    `;
+                    adsContainer.appendChild(adElement);
+                });
+            } else {
+                adsContainer.innerHTML = `<p>No ads found for this filter.</p>`;
+            }
+        }
+
+        // Фильтруем объявления по категории
+        let filteredAds = ads.filter(ad => ad.category === category);
+
+        // Отображаем объявления по умолчанию
+        displayAds(filteredAds);
+
+        // Добавляем функционал фильтрации по местоположению
+        const locationFilter = document.getElementById('locationFilter');
+        locationFilter.addEventListener('change', () => {
+            const selectedLocation = locationFilter.value;
+            const locationFilteredAds = selectedLocation
+                ? filteredAds.filter(ad => ad.location === selectedLocation)
+                : filteredAds;
+            displayAds(locationFilteredAds);
+        });
+
+        // Кнопка "Back" возвращает на главную страницу
+        function goBack() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
